@@ -56,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .target(sydney)
                 .zoom(15) //LIMITE DE ZOOM ES 21
                 .bearing(90) //Orientacion de la camara hacia el este
-                .tilt(90) // Efecto 3d en 90°
+                .tilt(30) // Efecto 3d en 90°
                 .build();
 
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));

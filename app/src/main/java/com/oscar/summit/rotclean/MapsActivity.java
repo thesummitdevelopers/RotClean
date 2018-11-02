@@ -118,7 +118,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for (int i = 0 ; i < ja.length(); i++){
 
                     mMap.addMarker(new MarkerOptions().position(points.get(i)));
-                    Toast.makeText(MapsActivity.this, "Aqui"+ points.get(i), Toast.LENGTH_SHORT).show();
 
                 }
             } catch (JSONException e) {

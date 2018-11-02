@@ -70,7 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         CameraPosition camera = new CameraPosition.Builder()
                 .target(home)
-                .zoom(15) //LIMITE DE ZOOM ES 21
+                //.zoom(15) //LIMITE DE ZOOM ES 21
                 .bearing(90) //Orientacion de la camara hacia el este
                 .tilt(30) // Efecto 3d en 90°
                 .build();

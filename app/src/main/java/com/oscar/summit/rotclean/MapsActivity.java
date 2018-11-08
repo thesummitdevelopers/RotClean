@@ -1,12 +1,22 @@
 package com.oscar.summit.rotclean;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -32,14 +42,13 @@ import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    LocationManager locationManager;
     private GoogleMap mMap;
-
     private MarkerOptions marker;
 
-    LatLng home = new LatLng(-16.416232,-71.501152);
+    LatLng home;
 
-    List<Double> pintla=new ArrayList<Double>();
-    List<Double> pintlo=new ArrayList<Double>();
+
     JSONArray ja = null;
 
     List<LatLng> points=new ArrayList<LatLng>();
@@ -48,6 +57,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+
 
         if (savedInstanceState == null) { //PARA QUE LA APLICACION AL MOMENTO DE ROTAR, SOLO SEA LLAMADA 1 VEZ,
             // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -61,30 +72,81 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        //A ESTE METODO SE LE AGREGA LA POSICION CON LA CUAL INICIARA AL MOMENTO DE CARGAR EL MAPA
+
+
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        1);
+
+            }
+        }
+
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        //////////////////////////////////////////////////////////////////////////////////////////////
         mMap = googleMap;
+
+        mMap.setMyLocationEnabled(true);
 
         mMap.setMinZoomPreference(10); //ESTABLECER EL ZOOM MINIMO EN EL MAPA
         mMap.setMaxZoomPreference(18); //ESTABLECER EL ZOOM MAXIMO EN EL MAPA
 
-
-        CameraPosition camera = new CameraPosition.Builder()
-                .target(home)
-                //.zoom(15) //LIMITE DE ZOOM ES 21
+        /*CameraPosition camera = new CameraPosition.Builder()
+                .target(mMap.)
+                .zoom(15) //LIMITE DE ZOOM ES 21
                 .bearing(90) //Orientacion de la camara hacia el este
                 .tilt(30) // Efecto 3d en 90°
                 .build();
 
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
-        new ConsultarDatos().execute("https://11coolest.es/consulta.php");
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));*/
+
+
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-        marker = new MarkerOptions();
+        /*marker = new MarkerOptions();
         marker.position(home);
-        marker.title("Gracias por usar RotClean");
+        //marker.title("Gracias por usar RotClean");
         marker.icon(BitmapDescriptorFactory.fromResource(android.R.drawable.star_on));
 
-        mMap.addMarker(marker);
+        mMap.addMarker(marker);*/
+
+        /////////////////////////////////////////////////////////////////////////////////////////////
+
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(final Location location) {
+                // Called when a new location is found by the network location provider.
+                home = new LatLng(location.getLatitude(),location.getLongitude());
+                new ConsultarDatos().execute("https://11coolest.es/consulta.php");
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+
+        };
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        //A ESTE METODO SE LE AGREGA LA POSICION CON LA CUAL INICIARA AL MOMENTO DE CARGAR EL MAPA
+
 
 
     }
@@ -104,6 +166,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(String result) {
 
+            List<Double> pintla=new ArrayList<Double>();
+            List<Double> pintlo=new ArrayList<Double>();
 
             try {
                 ja = new JSONArray(result);
@@ -117,7 +181,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 for (int i = 0 ; i < ja.length(); i++){
 
-                    mMap.addMarker(new MarkerOptions().position(points.get(i)));
+                    mMap.addMarker(new MarkerOptions().position(points.get(i)).icon(BitmapDescriptorFactory.fromResource(R.drawable.trash)));
 
                 }
             } catch (JSONException e) {
